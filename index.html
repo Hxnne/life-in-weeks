@@ -1,11 +1,10 @@
 <script>
-/* ===== CONFIG ===== */
-const DOB = { year: 2002, month: 1, day: 24 }; // month = 1–12
+/* CONFIG */
+const DOB = { year: 2002, month: 1, day: 24 };
 const YEARS = 85;
 const WEEKS_PER_YEAR = 52;
-/* ================== */
 
-// force UTC dates (prevents timezone bugs)
+/* CALCULATE UTC dates to avoid timezone errors */
 const birthDateUTC = Date.UTC(DOB.year, DOB.month - 1, DOB.day);
 const now = new Date();
 const todayUTC = Date.UTC(
@@ -18,32 +17,67 @@ const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
 const weeksLived = Math.floor((todayUTC - birthDateUTC) / MS_PER_WEEK);
 
 const TOTAL_WEEKS = YEARS * WEEKS_PER_YEAR;
+
+/* VISUAL LAYOUT SETTINGS */
 const cols = WEEKS_PER_YEAR;
 const rows = YEARS;
-
-const size = 14;
+const squareSize = 14;
 const gap = 4;
+const gap4 = 8;   // extra gap every 4 weeks
+const gap5 = 16;  // extra gap every 5 years
 
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
-canvas.width = cols * (size + gap);
-canvas.height = rows * (size + gap);
-
-// draw grid
-for (let week = 0; week < TOTAL_WEEKS; week++) {
-  const x = (week % cols) * (size + gap);
-  const y = Math.floor(week / cols) * (size + gap);
-
-  if (week < weeksLived) {
-    ctx.fillStyle = "#777";   // past
-  } else if (week === weeksLived) {
-    ctx.fillStyle = "#fff";   // current week
-  } else {
-    ctx.fillStyle = "#222";   // future
+/* CALCULATE TOTAL WIDTH AND HEIGHT INCLUDING EXTRA GAPS */
+let width = 0;
+for (let c = 0; c < cols; c++) {
+  width += squareSize;
+  width += gap;
+  if ((c + 1) % 4 === 0 && (c + 1) < cols) {
+    width += gap4; // extra gap every 4th week group
   }
+}
+let height = 0;
+for (let r = 0; r < rows; r++) {
+  height += squareSize;
+  height += gap;
+  if ((r + 1) % 5 === 0 && (r + 1) < rows) {
+    height += gap5; // extra gap every 5th year
+  }
+}
 
-  ctx.fillRect(x, y, size, size);
+canvas.width = width;
+canvas.height = height;
+
+/* DRAW GRID */
+let yPos = 0;
+for (let r = 0; r < rows; r++) {
+  let xPos = 0;
+  for (let c = 0; c < cols; c++) {
+    const weekIndex = r * cols + c;
+
+    /* Determine color */
+    if (weekIndex < weeksLived) {
+      ctx.fillStyle = "#777";   // past
+    } else if (weekIndex === weeksLived) {
+      ctx.fillStyle = "#fff";   // current
+    } else {
+      ctx.fillStyle = "#222";   // future
+    }
+    /* Draw square */
+    ctx.fillRect(xPos, yPos, squareSize, squareSize);
+
+    /* Move X, add gap(s) */
+    xPos += squareSize + gap;
+    if ((c + 1) % 4 === 0 && (c + 1) < cols) {
+      xPos += gap4;
+    }
+  }
+  /* Next row Y */
+  yPos += squareSize + gap;
+  if ((r + 1) % 5 === 0 && (r + 1) < rows) {
+    yPos += gap5;
+  }
 }
 </script>
-
