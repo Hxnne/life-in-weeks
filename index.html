@@ -1,61 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Life in Weeks</title>
-<style>
-  body {
-    margin: 0;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  canvas {
-    image-rendering: pixelated;
-  }
-</style>
-</head>
-<body>
-<canvas id="c"></canvas>
-
 <script>
-const DOB = new Date("2002-01-24");
-const EXPECTED_YEARS = 90;
-const WEEKS = EXPECTED_YEARS * 52;
+/* ===== CONFIG ===== */
+const DOB = { year: 2002, month: 1, day: 24 }; // month = 1–12
+const YEARS = 85;
+const WEEKS_PER_YEAR = 52;
+/* ================== */
+
+// force UTC dates (prevents timezone bugs)
+const birthDateUTC = Date.UTC(DOB.year, DOB.month - 1, DOB.day);
+const now = new Date();
+const todayUTC = Date.UTC(
+  now.getUTCFullYear(),
+  now.getUTCMonth(),
+  now.getUTCDate()
+);
+
+const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
+const weeksLived = Math.floor((todayUTC - birthDateUTC) / MS_PER_WEEK);
+
+const TOTAL_WEEKS = YEARS * WEEKS_PER_YEAR;
+const cols = WEEKS_PER_YEAR;
+const rows = YEARS;
+
+const size = 14;
+const gap = 4;
 
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
-const cols = 52;
-const size = 14;
-const gap = 4;
-const rows = Math.ceil(WEEKS / cols);
-
 canvas.width = cols * (size + gap);
 canvas.height = rows * (size + gap);
 
-const today = new Date();
-const weeksLived = Math.floor(
-  (today - DOB) / (1000 * 60 * 60 * 24 * 7)
-);
+// draw grid
+for (let week = 0; week < TOTAL_WEEKS; week++) {
+  const x = (week % cols) * (size + gap);
+  const y = Math.floor(week / cols) * (size + gap);
 
-for (let i = 0; i < WEEKS; i++) {
-  const x = (i % cols) * (size + gap);
-  const y = Math.floor(i / cols) * (size + gap);
-
-  if (i < weeksLived) {
-    ctx.fillStyle = "#777";
-  } else if (i === weeksLived) {
-    ctx.fillStyle = "#fff";
+  if (week < weeksLived) {
+    ctx.fillStyle = "#777";   // past
+  } else if (week === weeksLived) {
+    ctx.fillStyle = "#fff";   // current week
   } else {
-    ctx.fillStyle = "#222";
+    ctx.fillStyle = "#222";   // future
   }
 
   ctx.fillRect(x, y, size, size);
 }
 </script>
-</body>
-</html>
+
