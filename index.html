@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Life in Weeks</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  canvas {
+    image-rendering: pixelated;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<script>
+const DOB = new Date("2002-01-24");
+const EXPECTED_YEARS = 90;
+const WEEKS = EXPECTED_YEARS * 52;
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+const cols = 52;
+const size = 14;
+const gap = 4;
+const rows = Math.ceil(WEEKS / cols);
+
+canvas.width = cols * (size + gap);
+canvas.height = rows * (size + gap);
+
+const today = new Date();
+const weeksLived = Math.floor(
+  (today - DOB) / (1000 * 60 * 60 * 24 * 7)
+);
+
+for (let i = 0; i < WEEKS; i++) {
+  const x = (i % cols) * (size + gap);
+  const y = Math.floor(i / cols) * (size + gap);
+
+  if (i < weeksLived) {
+    ctx.fillStyle = "#777";
+  } else if (i === weeksLived) {
+    ctx.fillStyle = "#fff";
+  } else {
+    ctx.fillStyle = "#222";
+  }
+
+  ctx.fillRect(x, y, size, size);
+}
+</script>
+</body>
+</html>
